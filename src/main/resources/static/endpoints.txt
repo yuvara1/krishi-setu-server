@@ -1,0 +1,67 @@
+### Authentication APIs
+
+```
+POST /api/auth/register - Register new user (Farmer/Retailer)
+POST /api/auth/login - Login and receive JWT token
+POST /api/auth/refresh - Refresh JWT token
+GET /api/auth/profile - Get current user profile
+```
+
+### User Management APIs (Admin)
+
+```jsx
+GET /api/admin/users - Get all users
+GET /api/admin/users/{id} - Get user by ID
+PUT /api/admin/users/{id} - Update user
+DELETE /api/admin/users/{id} - Delete user
+```
+
+### Crop Batch APIs
+
+```
+POST /api/crops - Create new crop batch (Farmer only)
+GET /api/crops - Get all available crop batches
+GET /api/crops/{id} - Get crop batch details
+PUT /api/crops/{id} - Update crop batch (Farmer only)
+DELETE /api/crops/{id} - Delete crop batch (Farmer only)
+GET /api/crops/farmer/{farmerId} - Get all crops by farmer
+GET /api/crops/status/{status} - Get crops by status
+```
+
+### Bidding APIs
+
+```
+POST /api/bids - Place a bid (Retailer only)
+GET /api/bids/crop/{cropBatchId} - Get all bids for a crop batch
+GET /api/bids/retailer/{retailerId} - Get all bids by retailer
+PUT /api/bids/{id}/accept - Accept a bid (Farmer only)
+PUT /api/bids/{id}/reject - Reject a bid (Farmer only)
+DELETE /api/bids/{id} - Delete/withdraw bid (Retailer only)
+```
+
+### Order APIs
+
+```
+GET /api/orders - Get all orders (Admin)
+GET /api/orders/{id} - Get order details
+GET /api/orders/farmer/{farmerId} - Get orders for farmer
+GET /api/orders/retailer/{retailerId} - Get orders for retailer
+PUT /api/orders/{id}/status - Update order status
+PUT /api/orders/{id}/payment - Update payment status
+```
+
+### Payment APIs
+
+```
+POST /api/payments - Create payment record
+GET /api/payments/order/{orderId} - Get payment for order
+PUT /api/payments/{id} - Update payment status
+```
+
+### Dashboard APIs
+
+```
+GET /api/dashboard/farmer - Farmer dashboard stats
+GET /api/dashboard/retailer - Retailer dashboard stats
+GET /api/dashboard/admin - Admin dashboard stats
+```
