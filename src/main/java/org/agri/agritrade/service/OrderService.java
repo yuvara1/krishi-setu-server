@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.agri.agritrade.dto.OrderDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -50,30 +53,46 @@ public class OrderService {
 
     @Transactional
     public ResponseStructure<OrderDTO> createOrderFromBid(Long bidId, String deliveryAddress) {
-        Optional<Bid> bidOpt = bidRepository.findById(bidId);
-        if (bidOpt.isEmpty())
-            return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Bid not found", null);
+        if (deliveryAddress == null || deliveryAddress.trim().isEmpty()) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(),
+                    "Delivery address is required", null);
+        }
+        if (orderRepository.findByBid_Id(bidId).isPresent()) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(),
+                    "Order already exists for this bid", null);
+        }
 
-        Bid bid = bidOpt.get();
-        Order order = new Order();
-        order.setBid(bid);
-        order.setCropBatch(bid.getCropBatch());
-        order.setFarmer(bid.getCropBatch().getFarmer());
-        order.setRetailer(bid.getRetailer());
-        order.setFinalAmount(bid.getBidAmount().multiply(bid.getBidQuantity()));
-        order.setQuantity(bid.getBidQuantity());
-        order.setOrderStatus(OrderStatus.PENDING);
-        order.setPaymentStatus(PaymentStatus.PENDING);
-        order.setDeliveryAddress(deliveryAddress);
-        order.setOrderDate(LocalDateTime.now());
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+       try {
+           Optional<Bid> bidOpt = bidRepository.findById(bidId);
+           if (bidOpt.isEmpty())
+               return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Bid not found", null);
 
-        bid.getCropBatch().setStatus(CropStatus.SOLD);
-        cropBatchRepository.save(bid.getCropBatch());
+           Bid bid = bidOpt.get();
+           Order order = new Order();
+           order.setBid(bid);
+           order.setCropBatch(bid.getCropBatch());
+           order.setFarmer(bid.getCropBatch().getFarmer());
+           order.setRetailer(bid.getRetailer());
+           order.setFinalAmount(bid.getBidAmount().multiply(bid.getBidQuantity()));
+           order.setQuantity(bid.getBidQuantity());
+           order.setOrderStatus(OrderStatus.PENDING);
+           order.setPaymentStatus(PaymentStatus.PENDING);
+           order.setDeliveryAddress(deliveryAddress);
+           order.setOrderDate(LocalDateTime.now());
+           order.setCreatedAt(LocalDateTime.now());
+           order.setUpdatedAt(LocalDateTime.now());
 
-        Order saved = orderRepository.save(order);
-        return new ResponseStructure<>(HttpStatus.CREATED.value(), "Order created", toDTO(saved));
+           bid.getCropBatch().setStatus(CropStatus.SOLD);
+           cropBatchRepository.save(bid.getCropBatch());
+
+           Order saved = orderRepository.save(order);
+           return new ResponseStructure<>(HttpStatus.CREATED.value(), "Order created", toDTO(saved));
+       }
+       catch (Exception e) {
+           log.error("Error creating order from bid {}: {}", bidId, e.getMessage(), e);
+           return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to create order", null);
+       }
+
     }
 
     public ResponseStructure<OrderDTO> getById(Long id) {
