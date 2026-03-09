@@ -35,6 +35,7 @@ public class BidService {
     private final CropBatchRepository cropBatchRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final SmsService smsService;
 
     private BidDTO toDTO(Bid bid) {
         BidDTO dto = new BidDTO();
@@ -87,6 +88,15 @@ public class BidService {
         bid.setCreatedAt(LocalDateTime.now());
 
         Bid saved = bidRepository.save(bid);
+
+        // Send SMS to farmer notifying about new bid
+        User farmer = crop.getFarmer();
+        String farmerMsg = String.format(
+                "New bid received on your crop '%s'! Retailer: %s, Amount: ₹%s, Quantity: %s %s. Check your dashboard to review.",
+                crop.getCropName(), retailerOpt.get().getFullName(),
+                dto.getBidAmount(), dto.getBidQuantity(), crop.getUnit());
+        smsService.sendSms(farmer.getPhoneNumber(), farmerMsg);
+
         return new ResponseStructure<>(HttpStatus.CREATED.value(), "Bid placed successfully", toDTO(saved));
     }
 
@@ -109,7 +119,19 @@ public class BidService {
         Bid bid = bidOpt.get();
         bid.setBidStatus(status);
         // No longer close bidding on accept — crop stays available for partial selling
-        return new ResponseStructure<>(HttpStatus.OK.value(), "Bid status updated", toDTO(bidRepository.save(bid)));
+        Bid updatedBid = bidRepository.save(bid);
+
+        // Send SMS to retailer notifying about bid acceptance/rejection
+        User retailer = bid.getRetailer();
+        String cropName = bid.getCropBatch().getCropName();
+        String statusText = status == BidStatus.ACCEPTED ? "accepted" : "rejected";
+        String retailerMsg = String.format(
+                "Your bid on '%s' has been %s by the farmer. Bid Amount: ₹%s, Quantity: %s. %s",
+                cropName, statusText, bid.getBidAmount(), bid.getBidQuantity(),
+                status == BidStatus.ACCEPTED ? "Proceed to payment on your dashboard." : "You can place new bids on other crops.");
+        smsService.sendSms(retailer.getPhoneNumber(), retailerMsg);
+
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Bid status updated", toDTO(updatedBid));
     }
 
     @Transactional
