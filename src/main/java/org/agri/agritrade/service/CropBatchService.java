@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.agri.agritrade.dto.CropBatchDTO;
+import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.CropBatch;
 import org.agri.agritrade.entity.User;
@@ -14,6 +15,9 @@ import org.agri.agritrade.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,6 +75,22 @@ public class CropBatchService {
         }
     }
 
+    public ResponseStructure<PagedResponse<CropBatchDTO>> getAllCropBatchesPaged(int page, int size) {
+        try {
+            Page<CropBatch> cropPage = cropBatchRepository.findAll(
+                    PageRequest.of(page, size,
+                            Sort.by("createdAt").descending()));
+            List<CropBatchDTO> dtos = cropPage.getContent().stream()
+                    .map(CropBatchMapper::toDTO).toList();
+            PagedResponse<CropBatchDTO> paged = new PagedResponse<>(
+                    dtos, cropPage.getNumber(), cropPage.getSize(),
+                    cropPage.getTotalElements(), cropPage.getTotalPages(), cropPage.isLast());
+            return new ResponseStructure<>(HttpStatus.OK.value(), "Crop batches retrieved successfully", paged);
+        } catch (Exception e) {
+            log.error("Error retrieving paged crop batches: {}", e.getMessage(), e);
+            return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve crop batches", null);
+        }
+    }
 
     public ResponseStructure<CropBatchDTO> getCropBatchById(Long id) {
         try {
@@ -151,6 +171,34 @@ public class CropBatchService {
         }
     }
 
+    @Transactional
+    public ResponseStructure<CropBatchDTO> updateCropStatus(Long cropId, CropStatus newStatus) {
+        try {
+            Optional<CropBatch> cropBatch = cropBatchRepository.findById(cropId);
+            if (cropBatch.isEmpty()) {
+                return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Crop batch not found", null);
+            }
+
+            CropBatch crop = cropBatch.get();
+
+            if (crop.getStatus() == CropStatus.SOLD) {
+                return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "Cannot delete a sold crop", null);
+            }
+
+            crop.setStatus(newStatus);
+            crop.setUpdatedAt(LocalDateTime.now());
+
+            CropBatch updatedCrop = cropBatchRepository.save(crop);
+            CropBatchDTO responseDTO = CropBatchMapper.toDTO(updatedCrop);
+            log.info("Crop batch status updated to {} for ID: {}", newStatus, cropId);
+
+            return new ResponseStructure<>(HttpStatus.OK.value(), "Crop status updated successfully", responseDTO);
+        } catch (Exception e) {
+            log.error("Error updating crop status for ID {}: {}", cropId, e.getMessage(), e);
+            return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to update crop status", null);
+        }
+    }
+
 
     @Transactional
     public ResponseStructure<Void> deleteCropBatch(Long id) {
@@ -191,6 +239,26 @@ public class CropBatchService {
         }
     }
 
+    public ResponseStructure<PagedResponse<CropBatchDTO>> getCropsByFarmerIdPaged(Long farmerId, int page, int size) {
+        try {
+            Optional<User> farmer = userRepository.findById(farmerId);
+            if (farmer.isEmpty()) {
+                return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Farmer not found", null);
+            }
+            Page<CropBatch> cropPage = cropBatchRepository.findByFarmerId(farmerId,
+                    PageRequest.of(page, size,
+                            Sort.by("createdAt").descending()));
+            List<CropBatchDTO> dtos = cropPage.getContent().stream()
+                    .map(CropBatchMapper::toDTO).toList();
+            PagedResponse<CropBatchDTO> paged = new PagedResponse<>(
+                    dtos, cropPage.getNumber(), cropPage.getSize(),
+                    cropPage.getTotalElements(), cropPage.getTotalPages(), cropPage.isLast());
+            return new ResponseStructure<>(HttpStatus.OK.value(), "Farmer's crop batches retrieved successfully", paged);
+        } catch (Exception e) {
+            log.error("Error retrieving paged crops for farmer {}: {}", farmerId, e.getMessage(), e);
+            return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve farmer's crop batches", null);
+        }
+    }
 
     public ResponseStructure<List<CropBatchDTO>> getCropsByStatus(CropStatus status) {
         try {
@@ -231,34 +299,5 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Search failed", null);
         }
     }
-
-    @Transactional
-    public ResponseStructure<CropBatchDTO> updateCropStatus(Long cropId, CropStatus newStatus) {
-        try {
-            Optional<CropBatch> cropBatch = cropBatchRepository.findById(cropId);
-            if (cropBatch.isEmpty()) {
-                return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Crop batch not found", null);
-            }
-
-            CropBatch crop = cropBatch.get();
-
-            if (crop.getStatus() == CropStatus.SOLD) {
-                return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "Cannot delete a sold crop", null);
-            }
-
-            crop.setStatus(newStatus);
-            crop.setUpdatedAt(LocalDateTime.now());
-
-            CropBatch updatedCrop = cropBatchRepository.save(crop);
-            CropBatchDTO responseDTO = CropBatchMapper.toDTO(updatedCrop);
-            log.info("Crop batch status updated to {} for ID: {}", newStatus, cropId);
-
-            return new ResponseStructure<>(HttpStatus.OK.value(), "Crop status updated successfully", responseDTO);
-        } catch (Exception e) {
-            log.error("Error updating crop status for ID {}: {}", cropId, e.getMessage(), e);
-            return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to update crop status", null);
-        }
-    }
-
 
 }

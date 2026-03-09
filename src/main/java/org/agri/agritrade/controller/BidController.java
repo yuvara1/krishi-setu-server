@@ -2,6 +2,8 @@ package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.BidDTO;
+import org.agri.agritrade.dto.PagedResponse;
+import org.springframework.data.domain.Page;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.enums.BidStatus;
 import org.agri.agritrade.service.BidService;
@@ -31,9 +33,27 @@ public class BidController {
         return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 
+    @GetMapping("/crop/{cropBatchId}/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<BidDTO>>> getByCropPaged(
+            @PathVariable Long cropBatchId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ResponseStructure<PagedResponse<BidDTO>> res = bidService.getBidsByCropBatchPaged(cropBatchId, page, size);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
     @GetMapping("/retailer/{retailerId}")
     public ResponseEntity<ResponseStructure<List<BidDTO>>> getByRetailer(@PathVariable Long retailerId) {
         ResponseStructure<List<BidDTO>> res = bidService.getBidsByRetailer(retailerId);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
+    @GetMapping("/retailer/{retailerId}/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<BidDTO>>> getByRetailerPaged(
+            @PathVariable Long retailerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ResponseStructure<PagedResponse<BidDTO>> res = bidService.getBidsByRetailerPaged(retailerId, page, size);
         return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 

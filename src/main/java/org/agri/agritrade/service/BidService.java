@@ -1,4 +1,5 @@
 package org.agri.agritrade.service;
+import org.agri.agritrade.dto.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,9 @@ import org.agri.agritrade.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -114,5 +118,27 @@ public class BidService {
             return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Bid not found", null);
         bidRepository.deleteById(bidId);
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bid deleted", null);
+    }
+
+    public ResponseStructure<PagedResponse<BidDTO>> getBidsByCropBatchPaged(Long cropBatchId, int page, int size) {
+        Page<Bid> bidPage = bidRepository.findByCropBatch_Id(cropBatchId,
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("createdAt").descending()));
+        List<BidDTO> dtos = bidPage.getContent().stream().map(this::toDTO).toList();
+        PagedResponse<BidDTO> paged = new PagedResponse<>(
+                dtos, bidPage.getNumber(), bidPage.getSize(),
+                bidPage.getTotalElements(), bidPage.getTotalPages(), bidPage.isLast());
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", paged);
+    }
+
+    public ResponseStructure<PagedResponse<BidDTO>> getBidsByRetailerPaged(Long retailerId, int page, int size) {
+        Page<Bid> bidPage = bidRepository.findByRetailer_Id(retailerId,
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("createdAt").descending()));
+        List<BidDTO> dtos = bidPage.getContent().stream().map(this::toDTO).toList();
+        PagedResponse<BidDTO> paged = new PagedResponse<>(
+                dtos, bidPage.getNumber(), bidPage.getSize(),
+                bidPage.getTotalElements(), bidPage.getTotalPages(), bidPage.isLast());
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", paged);
     }
 }

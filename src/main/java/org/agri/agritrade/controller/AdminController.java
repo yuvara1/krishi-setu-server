@@ -1,6 +1,7 @@
 package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.dto.UserDTO;
 import org.agri.agritrade.service.UserService;
@@ -21,6 +22,14 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<ResponseStructure<List<UserDTO>>> getAllUsers() {
         ResponseStructure<List<UserDTO>> res = userService.getAllUsers();
+        return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
+    @GetMapping("/users/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<UserDTO>>> getAllUsersPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ResponseStructure<PagedResponse<UserDTO>> res = userService.getAllUsersPaged(page, size);
         return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 

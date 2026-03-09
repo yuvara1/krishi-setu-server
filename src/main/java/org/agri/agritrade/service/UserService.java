@@ -10,6 +10,10 @@ import org.agri.agritrade.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.agri.agritrade.dto.PagedResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +49,23 @@ public class UserService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve users", null);
         }
     }
+
+    public ResponseStructure<PagedResponse<UserDTO>> getAllUsersPaged(int page, int size) {
+        try {
+            Page<User> userPage = userRepository.findAll(
+                    PageRequest.of(page, size, Sort.by("createdAt").descending()));
+            List<UserDTO> dtos = userPage.getContent().stream()
+                    .map(this::toDTO).toList();
+            PagedResponse<UserDTO> paged = new PagedResponse<>(
+                    dtos, userPage.getNumber(), userPage.getSize(),
+                    userPage.getTotalElements(), userPage.getTotalPages(), userPage.isLast());
+            return new ResponseStructure<>(HttpStatus.OK.value(), "Users retrieved successfully", paged);
+        } catch (Exception e) {
+            log.error("Error retrieving paged users: {}", e.getMessage(), e);
+            return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve users", null);
+        }
+    }
+
 
     public ResponseStructure<UserDTO> getUserById(Long id) {
         try {

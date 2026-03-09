@@ -3,6 +3,7 @@ package org.agri.agritrade.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.agri.agritrade.dto.OrderDTO;
+import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.*;
 import org.agri.agritrade.entity.enums.CropStatus;
@@ -12,6 +13,9 @@ import org.agri.agritrade.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -111,6 +115,39 @@ public class OrderService {
     public ResponseStructure<List<OrderDTO>> getAll() {
         List<OrderDTO> orders = orderRepository.findAll().stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
+    }
+
+    public ResponseStructure<PagedResponse<OrderDTO>> getAllPaged(int page, int size) {
+        Page<Order> orderPage = orderRepository.findAll(
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("createdAt").descending()));
+        List<OrderDTO> dtos = orderPage.getContent().stream().map(this::toDTO).toList();
+        PagedResponse<OrderDTO> paged = new PagedResponse<>(
+                dtos, orderPage.getNumber(), orderPage.getSize(),
+                orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
+    }
+
+    public ResponseStructure<PagedResponse<OrderDTO>> getByFarmerPaged(Long farmerId, int page, int size) {
+        Page<Order> orderPage = orderRepository.findByFarmer_Id(farmerId,
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("createdAt").descending()));
+        List<OrderDTO> dtos = orderPage.getContent().stream().map(this::toDTO).toList();
+        PagedResponse<OrderDTO> paged = new PagedResponse<>(
+                dtos, orderPage.getNumber(), orderPage.getSize(),
+                orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
+    }
+
+    public ResponseStructure<PagedResponse<OrderDTO>> getByRetailerPaged(Long retailerId, int page, int size) {
+        Page<Order> orderPage = orderRepository.findByRetailer_Id(retailerId,
+                org.springframework.data.domain.PageRequest.of(page, size,
+                        org.springframework.data.domain.Sort.by("createdAt").descending()));
+        List<OrderDTO> dtos = orderPage.getContent().stream().map(this::toDTO).toList();
+        PagedResponse<OrderDTO> paged = new PagedResponse<>(
+                dtos, orderPage.getNumber(), orderPage.getSize(),
+                orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
     }
 
     @Transactional

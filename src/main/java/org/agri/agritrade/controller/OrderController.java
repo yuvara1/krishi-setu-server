@@ -2,6 +2,7 @@ package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.OrderDTO;
+import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.enums.OrderStatus;
 import org.agri.agritrade.service.OrderService;
@@ -40,9 +41,27 @@ public class OrderController {
         return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 
+    @GetMapping("/farmer/{farmerId}/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<OrderDTO>>> getByFarmerPaged(
+            @PathVariable Long farmerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ResponseStructure<PagedResponse<OrderDTO>> res = orderService.getByFarmerPaged(farmerId, page, size);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
     @GetMapping("/retailer/{retailerId}")
     public ResponseEntity<ResponseStructure<List<OrderDTO>>> getByRetailer(@PathVariable Long retailerId) {
         ResponseStructure<List<OrderDTO>> res = orderService.getByRetailer(retailerId);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
+    @GetMapping("/retailer/{retailerId}/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<OrderDTO>>> getByRetailerPaged(
+            @PathVariable Long retailerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ResponseStructure<PagedResponse<OrderDTO>> res = orderService.getByRetailerPaged(retailerId, page, size);
         return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 
@@ -53,17 +72,21 @@ public class OrderController {
         return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 
+    @GetMapping("/paged")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseStructure<PagedResponse<OrderDTO>>> getAllPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ResponseStructure<PagedResponse<OrderDTO>> res = orderService.getAllPaged(page, size);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseStructure<OrderDTO>> updateStatus(
-            @PathVariable Long id, @RequestParam String status) {
-        try {
-            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
-            ResponseStructure<OrderDTO> res = orderService.updateStatus(id, orderStatus);
-            return ResponseEntity.status(res.getStatusCode()).body(res);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(
-                new ResponseStructure<>(400, "Invalid order status: " + status, null));
-        }
+            @PathVariable Long id,
+            @RequestParam OrderStatus status) {
+        ResponseStructure<OrderDTO> res = orderService.updateStatus(id, status);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 }

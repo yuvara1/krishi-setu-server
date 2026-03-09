@@ -3,6 +3,7 @@ package org.agri.agritrade.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.CropBatchDTO;
+import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.enums.CropStatus;
 import org.agri.agritrade.service.CropBatchService;
@@ -32,6 +33,14 @@ public class CropBatchController {
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
+    @GetMapping("/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<CropBatchDTO>>> getAllCropBatchesPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        ResponseStructure<PagedResponse<CropBatchDTO>> response = cropBatchService.getAllCropBatchesPaged(page, size);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponseStructure<CropBatchDTO>> getCropBatchById(@PathVariable Long id) {
         ResponseStructure<CropBatchDTO> response = cropBatchService.getCropBatchById(id);
@@ -57,6 +66,15 @@ public class CropBatchController {
     @GetMapping("/farmer/{farmerId}")
     public ResponseEntity<ResponseStructure<List<CropBatchDTO>>> getCropsByFarmerId(@PathVariable Long farmerId) {
         ResponseStructure<List<CropBatchDTO>> response = cropBatchService.getCropsByFarmerId(farmerId);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @GetMapping("/farmer/{farmerId}/paged")
+    public ResponseEntity<ResponseStructure<PagedResponse<CropBatchDTO>>> getCropsByFarmerIdPaged(
+            @PathVariable Long farmerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        ResponseStructure<PagedResponse<CropBatchDTO>> response = cropBatchService.getCropsByFarmerIdPaged(farmerId, page, size);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
