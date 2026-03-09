@@ -12,6 +12,8 @@ import org.agri.agritrade.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -55,6 +57,38 @@ public class AuthController {
     public ResponseEntity<ResponseStructure<UserDTO>> getCurrentUserProfile() {
         log.info("Received request for current user profile");
         ResponseStructure<UserDTO> response = authService.getCurrentUserProfile();
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseStructure<Void>> forgotPassword(@RequestBody Map<String, String> body) {
+        String method = body.getOrDefault("method", "email");
+        ResponseStructure<Void> response = authService.forgotPassword(body.get("email"), method);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ResponseStructure<Void>> verifyOtp(@RequestBody Map<String, String> body) {
+        ResponseStructure<Void> response = authService.verifyOtp(body.get("email"), body.get("otp"));
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseStructure<Void>> resetPassword(@RequestBody Map<String, String> body) {
+        ResponseStructure<Void> response = authService.resetPassword(
+                body.get("email"), body.get("otp"), body.get("newPassword"));
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<ResponseStructure<UserDTO>> updateProfile(@RequestBody Map<String, String> updates) {
+        ResponseStructure<UserDTO> response = authService.updateProfile(updates);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<ResponseStructure<Void>> changePassword(@RequestBody Map<String, String> request) {
+        ResponseStructure<Void> response = authService.changePassword(request);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 }

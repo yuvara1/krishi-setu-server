@@ -5,7 +5,10 @@ import org.agri.agritrade.dto.OrderDTO;
 import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.enums.OrderStatus;
+import org.agri.agritrade.service.InvoiceService;
 import org.agri.agritrade.service.OrderService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +22,7 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService orderService;
+    private final InvoiceService invoiceService;
 
     @PostMapping("/from-bid/{bidId}")
     public ResponseEntity<ResponseStructure<OrderDTO>> createFromBid(
@@ -88,5 +92,14 @@ public class OrderController {
             @RequestParam OrderStatus status) {
         ResponseStructure<OrderDTO> res = orderService.updateStatus(id, status);
         return ResponseEntity.status(res.getStatusCode()).body(res);
+    }
+
+    @GetMapping("/{id}/invoice")
+    public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long id) {
+        byte[] pdf = invoiceService.generateInvoice(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "invoice-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
     }
 }

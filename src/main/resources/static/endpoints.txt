@@ -4,13 +4,20 @@
 POST /api/auth/register - Register new user (Farmer/Retailer)
 POST /api/auth/login - Login and receive JWT token
 POST /api/auth/refresh - Refresh JWT token
-GET /api/auth/profile - Get current user profile
+POST /api/auth/logout - Logout user
+GET /api/auth/me - Get current user profile
+POST /api/auth/forgot-password - Initiate password reset (email/phone)
+POST /api/auth/verify-otp - Verify OTP for password reset
+POST /api/auth/reset-password - Reset password using OTP
+PUT /api/auth/profile - Update user profile
+PUT /api/auth/change-password - Change password
 ```
 
 ### User Management APIs (Admin)
 
-```jsx
+```
 GET /api/admin/users - Get all users
+GET /api/admin/users/paged - Get paged users (page, size)
 GET /api/admin/users/{id} - Get user by ID
 PUT /api/admin/users/{id} - Update user
 DELETE /api/admin/users/{id} - Delete user
@@ -19,21 +26,26 @@ DELETE /api/admin/users/{id} - Delete user
 ### Crop Batch APIs
 
 ```
-POST /api/crops - Create new crop batch (Farmer only)
-GET /api/crops - Get all available crop batches
-GET /api/crops/{id} - Get crop batch details
-PUT /api/crops/{id} - Update crop batch (Farmer only)
-DELETE /api/crops/{id} - Delete crop batch (Farmer only)
-GET /api/crops/farmer/{farmerId} - Get all crops by farmer
-GET /api/crops/status/{status} - Get crops by status
+POST /api/crop-batches - Create new crop batch (Farmer only)
+GET /api/crop-batches - Get all crop batches
+GET /api/crop-batches/paged - Get paged crop batches (page, size)
+GET /api/crop-batches/{id} - Get crop batch details
+PUT /api/crop-batches/{id} - Update crop batch (Farmer only)
+DELETE /api/crop-batches/{id} - Delete crop batch (Farmer only)
+GET /api/crop-batches/farmer/{farmerId} - Get crops by farmer
+GET /api/crop-batches/farmer/{farmerId}/paged - Get paged crops by farmer (page, size)
+GET /api/crop-batches/status/{status} - Get crops by status
+PUT /api/crop-batches/{id}/status - Update crop status (Farmer only)
 ```
 
 ### Bidding APIs
 
 ```
 POST /api/bids - Place a bid (Retailer only)
-GET /api/bids/crop/{cropBatchId} - Get all bids for a crop batch
-GET /api/bids/retailer/{retailerId} - Get all bids by retailer
+GET /api/bids/crop/{cropBatchId} - Get bids for a crop batch
+GET /api/bids/crop/{cropBatchId}/paged - Get paged bids for a crop batch (page, size)
+GET /api/bids/retailer/{retailerId} - Get bids by retailer
+GET /api/bids/retailer/{retailerId}/paged - Get paged bids by retailer (page, size)
 PUT /api/bids/{id}/accept - Accept a bid (Farmer only)
 PUT /api/bids/{id}/reject - Reject a bid (Farmer only)
 DELETE /api/bids/{id} - Delete/withdraw bid (Retailer only)
@@ -42,26 +54,39 @@ DELETE /api/bids/{id} - Delete/withdraw bid (Retailer only)
 ### Order APIs
 
 ```
-GET /api/orders - Get all orders (Admin)
+POST /api/orders/from-bid/{bidId} - Create order from bid
 GET /api/orders/{id} - Get order details
 GET /api/orders/farmer/{farmerId} - Get orders for farmer
+GET /api/orders/farmer/{farmerId}/paged - Get paged orders for farmer (page, size)
 GET /api/orders/retailer/{retailerId} - Get orders for retailer
-PUT /api/orders/{id}/status - Update order status
-PUT /api/orders/{id}/payment - Update payment status
+GET /api/orders/retailer/{retailerId}/paged - Get paged orders for retailer (page, size)
+GET /api/orders - Get all orders (Admin only)
+GET /api/orders/paged - Get paged orders (Admin only) (page, size)
+PUT /api/orders/{id}/status - Update order status (Admin only)
+GET /api/orders/{id}/invoice - Download invoice PDF
 ```
 
 ### Payment APIs
 
 ```
-POST /api/payments - Create payment record
+POST /api/payments - Create payment record (Admin only)
 GET /api/payments/order/{orderId} - Get payment for order
-PUT /api/payments/{id} - Update payment status
+PUT /api/payments/{id}/status - Update payment status (Admin only)
+POST /api/payments/razorpay/create-order/{bidId} - Create Razorpay order
+POST /api/payments/razorpay/verify - Verify Razorpay payment
 ```
 
-### Dashboard APIs
+### Notification APIs
 
 ```
-GET /api/dashboard/farmer - Farmer dashboard stats
-GET /api/dashboard/retailer - Retailer dashboard stats
-GET /api/dashboard/admin - Admin dashboard stats
+GET /api/notifications/user/{userId} - Get user notifications
+GET /api/notifications/user/{userId}/unread-count - Get unread notification count
+PUT /api/notifications/{id}/read - Mark notification as read
+PUT /api/notifications/user/{userId}/read-all - Mark all notifications as read
+```
+
+### Image Upload APIs
+
+```
+POST /api/upload/image - Upload image (file, folder)
 ```

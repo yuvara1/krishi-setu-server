@@ -22,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final EmailService emailService;
+    private final SmsService smsService;
 
     @Transactional
     public ResponseStructure<UserDTO> register(RegistrationRequest request) {
@@ -157,6 +161,104 @@ public class AuthService {
         return buildSuccessResponse("User profile fetched successfully", userDTO, HttpStatus.OK);
     }
 
+    @Transactional
+    public ResponseStructure<Void> forgotPassword(String email, String method) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "No account found with this email", null);
+        }
+        String otp = String.format("%06d", new SecureRandom().nextInt(999999));
+        user.setOtp(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
+        userRepository.save(user);
+
+        if ("phone".equalsIgnoreCase(method)) {
+            if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
+                return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "No phone number associated with this account", null);
+            }
+            smsService.sendSms(user.getPhoneNumber(), "Your KrishiSetu OTP is: " + otp + ". Valid for 10 minutes.");
+            log.info("OTP sent via SMS to user: {}", email);
+            return new ResponseStructure<>(HttpStatus.OK.value(), "OTP sent to your phone number", null);
+        } else {
+            emailService.sendOtpEmail(email, otp);
+            log.info("OTP sent via email to: {}", email);
+            return new ResponseStructure<>(HttpStatus.OK.value(), "OTP sent to your email", null);
+        }
+    }
+
+    public ResponseStructure<Void> verifyOtp(String email, String otp) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
+        }
+        if (user.getOtp() == null || !user.getOtp().equals(otp)) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "Invalid OTP", null);
+        }
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "OTP has expired", null);
+        }
+        return new ResponseStructure<>(HttpStatus.OK.value(), "OTP verified successfully", null);
+    }
+
+    @Transactional
+    public ResponseStructure<Void> resetPassword(String email, String otp, String newPassword) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
+        }
+        if (user.getOtp() == null || !user.getOtp().equals(otp)) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "Invalid OTP", null);
+        }
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "OTP has expired", null);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setOtp(null);
+        user.setOtpExpiry(null);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Password reset successfully", null);
+    }
+
+    @Transactional
+    public ResponseStructure<UserDTO> updateProfile(Map<String, String> updates) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return buildErrorResponse("User is not authenticated", HttpStatus.UNAUTHORIZED);
+        }
+        User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) {
+            return buildErrorResponse("User not found", HttpStatus.NOT_FOUND);
+        }
+        if (updates.containsKey("fullName")) user.setFullName(updates.get("fullName"));
+        if (updates.containsKey("phoneNumber")) user.setPhoneNumber(updates.get("phoneNumber"));
+        if (updates.containsKey("address")) user.setAddress(updates.get("address"));
+        user.setUpdatedAt(LocalDateTime.now());
+        User saved = userRepository.save(user);
+        return buildSuccessResponse("Profile updated successfully", mapToUserDTO(saved), HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseStructure<Void> changePassword(Map<String, String> request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseStructure<>(HttpStatus.UNAUTHORIZED.value(), "Not authenticated", null);
+        }
+        User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) {
+            return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
+        }
+        String currentPassword = request.get("currentPassword");
+        String newPassword = request.get("newPassword");
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "Current password is incorrect", null);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Password changed successfully", null);
+    }
+
     private User buildUserFromRequest(RegistrationRequest request) {
         User user = new User();
         user.setFullName(request.getFullName());
@@ -178,7 +280,10 @@ public class AuthService {
         dto.setEmail(user.getEmail());
         dto.setFullName(user.getFullName());
         dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setAddress(user.getAddress());
         dto.setRole(user.getRole().name());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
         return dto;
     }
 

@@ -36,6 +36,8 @@ public class BidService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final SmsService smsService;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
 
     private BidDTO toDTO(Bid bid) {
         BidDTO dto = new BidDTO();
@@ -97,6 +99,13 @@ public class BidService {
                 dto.getBidAmount(), dto.getBidQuantity(), crop.getUnit());
         smsService.sendSms(farmer.getPhoneNumber(), farmerMsg);
 
+        // Send in-app notification to farmer
+        notificationService.sendNotification(farmer.getId(),
+                "New Bid Received",
+                farmerMsg,
+                "BID_RECEIVED");
+        emailService.sendBidNotification(farmer.getEmail(), farmerMsg);
+
         return new ResponseStructure<>(HttpStatus.CREATED.value(), "Bid placed successfully", toDTO(saved));
     }
 
@@ -130,6 +139,13 @@ public class BidService {
                 cropName, statusText, bid.getBidAmount(), bid.getBidQuantity(),
                 status == BidStatus.ACCEPTED ? "Proceed to payment on your dashboard." : "You can place new bids on other crops.");
         smsService.sendSms(retailer.getPhoneNumber(), retailerMsg);
+
+        // Send in-app notification to retailer
+        notificationService.sendNotification(retailer.getId(),
+                "Bid " + (status == BidStatus.ACCEPTED ? "Accepted" : "Rejected"),
+                retailerMsg,
+                status == BidStatus.ACCEPTED ? "BID_ACCEPTED" : "BID_REJECTED");
+        emailService.sendBidNotification(retailer.getEmail(), retailerMsg);
 
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bid status updated", toDTO(updatedBid));
     }

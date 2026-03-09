@@ -52,6 +52,12 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "otp")
+    private String otp;
+
+    @Column(name = "otp_expiry")
+    private LocalDateTime otpExpiry;
+
     @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL)
     private List<CropBatch> cropBatches;
 

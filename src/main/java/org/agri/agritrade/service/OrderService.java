@@ -29,6 +29,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final BidRepository bidRepository;
     private final CropBatchRepository cropBatchRepository;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
 
     private OrderDTO toDTO(Order order) {
         OrderDTO dto = new OrderDTO();
@@ -87,6 +89,18 @@ public class OrderService {
            cropBatchRepository.save(bid.getCropBatch());
 
            Order saved = orderRepository.save(order);
+
+           // Send notifications
+           String farmerMsg = String.format("New order created for your crop '%s'. Amount: ₹%s. Check your dashboard.",
+                   bid.getCropBatch().getCropName(), order.getFinalAmount());
+           String retailerMsg = String.format("Your order for '%s' has been created. Amount: ₹%s. Delivery to: %s",
+                   bid.getCropBatch().getCropName(), order.getFinalAmount(), deliveryAddress);
+
+           notificationService.sendNotification(order.getFarmer().getId(), "New Order", farmerMsg, "ORDER_CREATED");
+           notificationService.sendNotification(order.getRetailer().getId(), "Order Placed", retailerMsg, "ORDER_CREATED");
+           emailService.sendOrderConfirmation(order.getRetailer().getEmail(), retailerMsg);
+           emailService.sendOrderConfirmation(order.getFarmer().getEmail(), farmerMsg);
+
            return new ResponseStructure<>(HttpStatus.CREATED.value(), "Order created", toDTO(saved));
        }
        catch (Exception e) {
@@ -159,6 +173,14 @@ public class OrderService {
         order.setOrderStatus(status);
         order.setUpdatedAt(LocalDateTime.now());
         if (status == OrderStatus.DELIVERED) order.setDeliveryDate(LocalDateTime.now());
-        return new ResponseStructure<>(HttpStatus.OK.value(), "Status updated", toDTO(orderRepository.save(order)));
+        Order saved = orderRepository.save(order);
+
+        // Notify both parties about status update
+        String msg = String.format("Order #%d for '%s' status updated to %s",
+                order.getId(), order.getCropBatch().getCropName(), status);
+        notificationService.sendNotification(order.getFarmer().getId(), "Order Update", msg, "ORDER_STATUS");
+        notificationService.sendNotification(order.getRetailer().getId(), "Order Update", msg, "ORDER_STATUS");
+
+        return new ResponseStructure<>(HttpStatus.OK.value(), "Status updated", toDTO(saved));
     }
 }
