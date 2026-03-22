@@ -16,6 +16,7 @@ import org.agri.agritrade.repository.CropBatchRepository;
 import org.agri.agritrade.repository.OrderRepository;
 import org.agri.agritrade.repository.UserRepository;
 import org.agri.agritrade.service.BidServicePort;
+import org.agri.agritrade.service.EmailServicePort;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class BidService implements BidServicePort {
     private final OrderRepository orderRepository;
     private final SmsService smsService;
     private final NotificationService notificationService;
-    private final EmailService emailService;
+    private final EmailServicePort emailService;
 
     private BidDTO toDTO(Bid bid) {
         BidDTO dto = new BidDTO();

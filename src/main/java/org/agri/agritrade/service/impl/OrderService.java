@@ -10,6 +10,7 @@ import org.agri.agritrade.entity.enums.CropStatus;
 import org.agri.agritrade.entity.enums.OrderStatus;
 import org.agri.agritrade.entity.enums.PaymentStatus;
 import org.agri.agritrade.repository.*;
+import org.agri.agritrade.service.EmailServicePort;
 import org.agri.agritrade.service.OrderServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class OrderService implements OrderServicePort {
     private final BidRepository bidRepository;
     private final CropBatchRepository cropBatchRepository;
     private final NotificationService notificationService;
-    private final EmailService emailService;
+    private final EmailServicePort emailService;
 
     private OrderDTO toDTO(Order order) {
         OrderDTO dto = new OrderDTO();

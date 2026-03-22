@@ -12,6 +12,7 @@ import org.agri.agritrade.entity.enums.Role;
 import org.agri.agritrade.repository.UserRepository;
 import org.agri.agritrade.security.JwtTokenProvider;
 import org.agri.agritrade.service.AuthServicePort;
+import org.agri.agritrade.service.EmailServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -36,7 +37,7 @@ public class AuthService implements AuthServicePort {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-    private final EmailService emailService;
+    private final EmailServicePort emailService;
     private final SmsService smsService;
 
     @Override
