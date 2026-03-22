@@ -1,4 +1,5 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
+
 import org.agri.agritrade.dto.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -14,13 +15,14 @@ import org.agri.agritrade.repository.BidRepository;
 import org.agri.agritrade.repository.CropBatchRepository;
 import org.agri.agritrade.repository.OrderRepository;
 import org.agri.agritrade.repository.UserRepository;
+import org.agri.agritrade.service.BidServicePort;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BidService {
+public class BidService implements BidServicePort {
 
     private final BidRepository bidRepository;
     private final CropBatchRepository cropBatchRepository;
@@ -55,6 +57,7 @@ public class BidService {
         return dto;
     }
 
+    @Override
     @Transactional
     public ResponseStructure<BidDTO> createBid(BidDTO dto) {
         Optional<CropBatch> cropOpt = cropBatchRepository.findById(dto.getCropBatchId());
@@ -109,16 +112,17 @@ public class BidService {
         return new ResponseStructure<>(HttpStatus.CREATED.value(), "Bid placed successfully", toDTO(saved));
     }
 
+    @Override
     public ResponseStructure<List<BidDTO>> getBidsByCropBatch(Long cropBatchId) {
         List<BidDTO> bids = bidRepository.findByCropBatch_Id(cropBatchId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", bids);
     }
-
+    @Override
     public ResponseStructure<List<BidDTO>> getBidsByRetailer(Long retailerId) {
         List<BidDTO> bids = bidRepository.findByRetailer_Id(retailerId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", bids);
     }
-
+    @Override
     @Transactional
     public ResponseStructure<BidDTO> updateBidStatus(Long bidId, BidStatus status) {
         Optional<Bid> bidOpt = bidRepository.findById(bidId);
@@ -149,7 +153,7 @@ public class BidService {
 
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bid status updated", toDTO(updatedBid));
     }
-
+    @Override
     @Transactional
     public ResponseStructure<Void> deleteBid(Long bidId) {
         if (!bidRepository.existsById(bidId))
@@ -157,22 +161,23 @@ public class BidService {
         bidRepository.deleteById(bidId);
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bid deleted", null);
     }
-
+    @Override
     public ResponseStructure<PagedResponse<BidDTO>> getBidsByCropBatchPaged(Long cropBatchId, int page, int size) {
         Page<Bid> bidPage = bidRepository.findByCropBatch_Id(cropBatchId,
-                org.springframework.data.domain.PageRequest.of(page, size,
-                        org.springframework.data.domain.Sort.by("createdAt").descending()));
-        List<BidDTO> dtos = bidPage.getContent().stream().map(this::toDTO).toList();
-        PagedResponse<BidDTO> paged = new PagedResponse<>(
-                dtos, bidPage.getNumber(), bidPage.getSize(),
-                bidPage.getTotalElements(), bidPage.getTotalPages(), bidPage.isLast());
-        return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", paged);
+                PageRequest.of(page, size,
+                        Sort.by("createdAt").descending()));
+        return getPagedResponseResponseStructure(bidPage);
     }
-
+    @Override
     public ResponseStructure<PagedResponse<BidDTO>> getBidsByRetailerPaged(Long retailerId, int page, int size) {
         Page<Bid> bidPage = bidRepository.findByRetailer_Id(retailerId,
-                org.springframework.data.domain.PageRequest.of(page, size,
-                        org.springframework.data.domain.Sort.by("createdAt").descending()));
+                PageRequest.of(page, size,
+                        Sort.by("createdAt").descending()));
+        return getPagedResponseResponseStructure(bidPage);
+    }
+
+    @NotNull
+    private ResponseStructure<PagedResponse<BidDTO>> getPagedResponseResponseStructure(Page<Bid> bidPage) {
         List<BidDTO> dtos = bidPage.getContent().stream().map(this::toDTO).toList();
         PagedResponse<BidDTO> paged = new PagedResponse<>(
                 dtos, bidPage.getNumber(), bidPage.getSize(),

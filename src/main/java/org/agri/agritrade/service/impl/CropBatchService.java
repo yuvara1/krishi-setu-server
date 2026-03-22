@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.agri.agritrade.entity.enums.CropStatus;
 import org.agri.agritrade.mapper.CropBatchMapper;
 import org.agri.agritrade.repository.CropBatchRepository;
 import org.agri.agritrade.repository.UserRepository;
+import org.agri.agritrade.service.CropBatchServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +27,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CropBatchService {
+public class CropBatchService implements CropBatchServicePort {
 
     private final CropBatchRepository cropBatchRepository;
     private final UserRepository userRepository;
 
-    // Update method signatures in CropBatchService to use CropBatchDTO
 
+    @Override
     @Transactional
     public ResponseStructure<CropBatchDTO> createCropBatch(CropBatchDTO cropBatchDTO) {
         try {
@@ -61,7 +62,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to create crop batch", null);
         }
     }
-
+    @Override
     public ResponseStructure<List<CropBatchDTO>> getAllCropBatches() {
         try {
             List<CropBatch> cropBatches = cropBatchRepository.findAll();
@@ -74,7 +75,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve crop batches", null);
         }
     }
-
+    @Override
     public ResponseStructure<PagedResponse<CropBatchDTO>> getAllCropBatchesPaged(int page, int size) {
         try {
             Page<CropBatch> cropPage = cropBatchRepository.findAll(
@@ -91,7 +92,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve crop batches", null);
         }
     }
-
+    @Override
     public ResponseStructure<CropBatchDTO> getCropBatchById(Long id) {
         try {
             Optional<CropBatch> cropBatch = cropBatchRepository.findById(id);
@@ -105,7 +106,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve crop batch", null);
         }
     }
-
+    @Override
     @Transactional
     public ResponseStructure<CropBatchDTO> updateCropBatch(Long id, @Valid CropBatchDTO updatedCropBatch) {
         try {
@@ -170,7 +171,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to update crop batch", null);
         }
     }
-
+    @Override
     @Transactional
     public ResponseStructure<CropBatchDTO> updateCropStatus(Long cropId, CropStatus newStatus) {
         try {
@@ -199,7 +200,7 @@ public class CropBatchService {
         }
     }
 
-
+    @Override
     @Transactional
     public ResponseStructure<Void> deleteCropBatch(Long id) {
         try {
@@ -220,7 +221,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to delete crop batch", null);
         }
     }
-
+    @Override
     public ResponseStructure<List<CropBatchDTO>> getCropsByFarmerId(Long farmerId) {
         try {
             Optional<User> farmer = userRepository.findById(farmerId);
@@ -238,7 +239,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve farmer's crop batches", null);
         }
     }
-
+    @Override
     public ResponseStructure<PagedResponse<CropBatchDTO>> getCropsByFarmerIdPaged(Long farmerId, int page, int size) {
         try {
             Optional<User> farmer = userRepository.findById(farmerId);
@@ -259,7 +260,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve farmer's crop batches", null);
         }
     }
-
+    @Override
     public ResponseStructure<List<CropBatchDTO>> getCropsByStatus(CropStatus status) {
         try {
             List<CropBatch> cropBatches = cropBatchRepository.findByStatus(status);
@@ -272,7 +273,7 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve crop batches by status", null);
         }
     }
-
+    @Override
     public ResponseStructure<List<CropBatch>> getAvailableCropBatches() {
         try {
             List<CropBatch> availableCrops = cropBatchRepository.findByStatus(CropStatus.AVAILABLE);
@@ -282,10 +283,10 @@ public class CropBatchService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve available crop batches", null);
         }
     }
-
+    @Override
     public ResponseStructure<List<CropBatch>> searchCropsByName(String cropName) {
         try {
-            // Sanitize input to prevent injection
+
             String sanitizedCropName = cropName.replaceAll("[^a-zA-Z0-9\\s]", "").trim();
 
             if (sanitizedCropName.isEmpty()) {

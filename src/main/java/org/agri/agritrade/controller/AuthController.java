@@ -8,7 +8,7 @@ import org.agri.agritrade.dto.UserDTO;
 import org.agri.agritrade.dto.request.LoginRequest;
 import org.agri.agritrade.dto.request.RegistrationRequest;
 import org.agri.agritrade.dto.response.JwtAuthenticationResponse;
-import org.agri.agritrade.service.AuthService;
+import org.agri.agritrade.service.impl.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +37,7 @@ public class AuthController {
     }
 
     // refresh token
-        @PostMapping("/refresh")
+    @PostMapping("/refresh")
     public ResponseEntity<ResponseStructure<JwtAuthenticationResponse>> refreshToken(@RequestHeader("Authorization") String refreshToken) {
         log.info("Received token refresh request");
         ResponseStructure<JwtAuthenticationResponse> response = authService.refreshToken(refreshToken);

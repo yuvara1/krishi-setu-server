@@ -1,10 +1,11 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.agri.agritrade.entity.Order;
 import org.agri.agritrade.repository.OrderRepository;
+import org.agri.agritrade.service.InvoiceServicePort;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -13,11 +14,11 @@ import java.time.format.DateTimeFormatter;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class InvoiceService {
+public class InvoiceService implements InvoiceServicePort {
 
     private final OrderRepository orderRepository;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
-
+    @Override
     public byte[] generateInvoice(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));

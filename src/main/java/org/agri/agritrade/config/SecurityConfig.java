@@ -109,9 +109,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("https://krishi-setuu.vercel.app","http://localhost:5173","http://localhost:5174")); // Allow specific origins, adjust as needed for production
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

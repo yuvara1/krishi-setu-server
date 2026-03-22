@@ -3,7 +3,7 @@ package org.agri.agritrade.controller;
 import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.NotificationDTO;
 import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.service.NotificationService;
+import org.agri.agritrade.service.impl.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

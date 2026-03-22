@@ -6,7 +6,7 @@ import org.agri.agritrade.dto.CropBatchDTO;
 import org.agri.agritrade.dto.PagedResponse;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.enums.CropStatus;
-import org.agri.agritrade.service.CropBatchService;
+import org.agri.agritrade.service.impl.CropBatchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

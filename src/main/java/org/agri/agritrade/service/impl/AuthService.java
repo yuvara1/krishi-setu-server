@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import org.agri.agritrade.entity.User;
 import org.agri.agritrade.entity.enums.Role;
 import org.agri.agritrade.repository.UserRepository;
 import org.agri.agritrade.security.JwtTokenProvider;
+import org.agri.agritrade.service.AuthServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -29,7 +30,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthService {
+public class AuthService implements AuthServicePort {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -38,6 +39,7 @@ public class AuthService {
     private final EmailService emailService;
     private final SmsService smsService;
 
+    @Override
     @Transactional
     public ResponseStructure<UserDTO> register(RegistrationRequest request) {
         log.info("Attempting to register user with email: {}", request.getEmail());
@@ -66,6 +68,7 @@ public class AuthService {
         }
     }
 
+    @Override
     public ResponseStructure<JwtAuthenticationResponse> login(LoginRequest loginRequest) {
         log.info("Login attempt for user: {}", loginRequest.getEmail());
 
@@ -94,6 +97,7 @@ public class AuthService {
         }
     }
 
+    @Override
     public ResponseStructure<JwtAuthenticationResponse> refreshToken(String refreshToken) {
         log.info("Token refresh attempt");
 
@@ -123,6 +127,8 @@ public class AuthService {
         log.info("Token refreshed successfully for user: {}", username);
         return new ResponseStructure<>(HttpStatus.OK.value(), "Token refreshed successfully", response);
     }
+
+    @Override
     public ResponseStructure<Void> logout(String token) {
         log.info("Logout attempt");
 
@@ -131,13 +137,12 @@ public class AuthService {
             return new ResponseStructure<>(HttpStatus.BAD_REQUEST.value(), "Invalid token", null);
         }
 
-        // In a real application, you would implement token invalidation logic here
-        // For example, you could maintain a blacklist of tokens or use a token store
 
         log.info("User logged out successfully");
         return new ResponseStructure<>(HttpStatus.OK.value(), "Logout successful", null);
     }
 
+    @Override
     public ResponseStructure<UserDTO> getCurrentUserProfile() {
         log.info("Fetching current user profile");
 
@@ -161,6 +166,7 @@ public class AuthService {
         return buildSuccessResponse("User profile fetched successfully", userDTO, HttpStatus.OK);
     }
 
+    @Override
     @Transactional
     public ResponseStructure<Void> forgotPassword(String email, String method) {
         User user = userRepository.findByEmail(email).orElse(null);
@@ -186,6 +192,7 @@ public class AuthService {
         }
     }
 
+    @Override
     public ResponseStructure<Void> verifyOtp(String email, String otp) {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
@@ -200,6 +207,7 @@ public class AuthService {
         return new ResponseStructure<>(HttpStatus.OK.value(), "OTP verified successfully", null);
     }
 
+    @Override
     @Transactional
     public ResponseStructure<Void> resetPassword(String email, String otp, String newPassword) {
         User user = userRepository.findByEmail(email).orElse(null);
@@ -220,6 +228,7 @@ public class AuthService {
         return new ResponseStructure<>(HttpStatus.OK.value(), "Password reset successfully", null);
     }
 
+    @Override
     @Transactional
     public ResponseStructure<UserDTO> updateProfile(Map<String, String> updates) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -238,6 +247,7 @@ public class AuthService {
         return buildSuccessResponse("Profile updated successfully", mapToUserDTO(saved), HttpStatus.OK);
     }
 
+    @Override
     @Transactional
     public ResponseStructure<Void> changePassword(Map<String, String> request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

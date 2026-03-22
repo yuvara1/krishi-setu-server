@@ -15,7 +15,7 @@
 -- \c agritrade;
 
 -- =========================================================
--- CREATE ENUM TYPES
+-- ENUM TYPES
 -- =========================================================
 
 CREATE TYPE user_role AS ENUM ('FARMER', 'RETAILER', 'ADMIN');
@@ -53,168 +53,119 @@ CREATE TYPE payment_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED');
 -- USERS TABLE
 -- =========================================================
 CREATE TABLE users (
-                       id BIGSERIAL PRIMARY KEY,
-                       username VARCHAR(50) UNIQUE NOT NULL CHECK (length(trim(username)) >= 3),
-                       password VARCHAR(255) NOT NULL CHECK (length(password) >= 8), -- Allow shorter for testing
-                       email VARCHAR(100) UNIQUE NOT NULL CHECK (email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-                       full_name VARCHAR(100) NOT NULL CHECK (length(trim(full_name)) >= 2),
-                       phone_number VARCHAR(15) CHECK (phone_number ~ '^\+?[1-9]\d{1,14}$'),
-                       role user_role NOT NULL,
-                       address TEXT,
-                       is_active BOOLEAN DEFAULT true,
-                       email_verified BOOLEAN DEFAULT false,
-                       phone_verified BOOLEAN DEFAULT false,
-                       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                       last_login TIMESTAMP WITH TIME ZONE,
-                       CONSTRAINT users_username_length CHECK (length(trim(username)) BETWEEN 3 AND 50),
-                       CONSTRAINT users_email_length CHECK (length(trim(email)) BETWEEN 5 AND 100)
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    full_name VARCHAR(100),
+    phone_number VARCHAR(15),
+    role user_role NOT NULL,
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================
 -- CROP BATCHES TABLE
 -- =========================================================
 CREATE TABLE crop_batches (
-                              id BIGSERIAL PRIMARY KEY,
-                              farmer_id BIGINT NOT NULL,
-                              crop_name VARCHAR(100) NOT NULL CHECK (length(trim(crop_name)) >= 2),
-                              crop_type VARCHAR(50) CHECK (length(trim(crop_type)) >= 2),
-                              quantity DECIMAL(12,3) NOT NULL CHECK (quantity > 0),
-                              base_price DECIMAL(12,2) NOT NULL CHECK (base_price >= 0),
-                              harvest_date DATE,
-                              expiry_date DATE,
-                              description TEXT CHECK (length(trim(description)) <= 2000),
-                              status crop_status DEFAULT 'AVAILABLE',
-                              image_url VARCHAR(500),
-                              location VARCHAR(200) NOT NULL CHECK (length(trim(location)) >= 2),
-                              is_organic BOOLEAN DEFAULT false,
-                              unit VARCHAR(20) DEFAULT 'kg' CHECK (unit IN ('kg', 'quintal', 'ton', 'piece', 'dozen')),
-                              quality_grade VARCHAR(10) CHECK (quality_grade IN ('A+', 'A', 'B+', 'B', 'C')),
-                              minimum_bid_amount DECIMAL(12,2) CHECK (minimum_bid_amount >= base_price),
-                              is_active BOOLEAN DEFAULT true,
-                              created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                              updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                              CONSTRAINT fk_crop_farmer
-                                  FOREIGN KEY (farmer_id)
-                                      REFERENCES users(id)
-                                      ON DELETE CASCADE,
-                              CONSTRAINT crop_dates_valid
-                                  CHECK (expiry_date IS NULL OR harvest_date IS NULL OR expiry_date > harvest_date)
+    id BIGSERIAL PRIMARY KEY,
+    farmer_id BIGINT NOT NULL REFERENCES users(id),
+    crop_name VARCHAR(100) NOT NULL,
+    crop_type VARCHAR(50),
+    quantity DECIMAL(10,2) NOT NULL,
+    base_price DECIMAL(10,2) NOT NULL,
+    harvest_date DATE,
+    expiry_date DATE,
+    description TEXT,
+    status crop_status DEFAULT 'AVAILABLE',
+    image_url VARCHAR(500),
+    location VARCHAR(200),
+    is_organic BOOLEAN DEFAULT FALSE,
+    unit VARCHAR(20) DEFAULT 'kg',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================
 -- BIDS TABLE
 -- =========================================================
 CREATE TABLE bids (
-                      id BIGSERIAL PRIMARY KEY,
-                      crop_batch_id BIGINT NOT NULL,
-                      retailer_id BIGINT NOT NULL,
-                      bid_amount DECIMAL(12,2) NOT NULL CHECK (bid_amount > 0),
-                      bid_quantity DECIMAL(12,3) NOT NULL CHECK (bid_quantity > 0),
-                      bid_status bid_status DEFAULT 'PENDING',
-                      bid_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                      remarks TEXT CHECK (length(trim(remarks)) <= 500),
-                      is_active BOOLEAN DEFAULT true,
-                      expires_at TIMESTAMP WITH TIME ZONE,
-                      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                      CONSTRAINT fk_bid_crop
-                          FOREIGN KEY (crop_batch_id)
-                              REFERENCES crop_batches(id)
-                              ON DELETE CASCADE,
-                      CONSTRAINT fk_bid_retailer
-                          FOREIGN KEY (retailer_id)
-                              REFERENCES users(id)
-                              ON DELETE CASCADE,
-                      CONSTRAINT bid_expiry_valid
-                          CHECK (expires_at IS NULL OR expires_at > bid_date)
+    id BIGSERIAL PRIMARY KEY,
+    crop_batch_id BIGINT NOT NULL REFERENCES crop_batches(id),
+    retailer_id BIGINT NOT NULL REFERENCES users(id),
+    bid_amount DECIMAL(10,2) NOT NULL,
+    bid_quantity DECIMAL(10,2) NOT NULL,
+    bid_status bid_status DEFAULT 'PENDING',
+    bid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================
 -- ORDERS TABLE
 -- =========================================================
 CREATE TABLE orders (
-                        id BIGSERIAL PRIMARY KEY,
-                        order_number VARCHAR(20) UNIQUE,
-                        crop_batch_id BIGINT NOT NULL,
-                        farmer_id BIGINT NOT NULL,
-                        retailer_id BIGINT NOT NULL,
-                        bid_id BIGINT,
-                        final_amount DECIMAL(12,2) NOT NULL CHECK (final_amount >= 0),
-                        quantity DECIMAL(12,3) NOT NULL CHECK (quantity > 0),
-                        order_status order_status DEFAULT 'PENDING',
-                        payment_status payment_status DEFAULT 'PENDING',
-                        delivery_address TEXT NOT NULL CHECK (length(trim(delivery_address)) >= 10),
-                        delivery_contact VARCHAR(15) CHECK (delivery_contact ~ '^\+?[1-9]\d{1,14}$'),
-                        order_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                        expected_delivery_date DATE,
-                        actual_delivery_date TIMESTAMP WITH TIME ZONE,
-                        cancellation_reason TEXT,
-                        is_active BOOLEAN DEFAULT true,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                        CONSTRAINT fk_order_crop
-                            FOREIGN KEY (crop_batch_id)
-                                REFERENCES crop_batches(id)
-                                ON DELETE RESTRICT,
-                        CONSTRAINT fk_order_farmer
-                            FOREIGN KEY (farmer_id)
-                                REFERENCES users(id)
-                                ON DELETE RESTRICT,
-                        CONSTRAINT fk_order_retailer
-                            FOREIGN KEY (retailer_id)
-                                REFERENCES users(id)
-                                ON DELETE RESTRICT,
-                        CONSTRAINT fk_order_bid
-                            FOREIGN KEY (bid_id)
-                                REFERENCES bids(id)
-                                ON DELETE SET NULL
+    id BIGSERIAL PRIMARY KEY,
+    crop_batch_id BIGINT NOT NULL REFERENCES crop_batches(id),
+    farmer_id BIGINT NOT NULL REFERENCES users(id),
+    retailer_id BIGINT NOT NULL REFERENCES users(id),
+    bid_id BIGINT NOT NULL REFERENCES bids(id),
+    final_amount DECIMAL(10,2) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL,
+    order_status order_status DEFAULT 'PENDING',
+    payment_status payment_status DEFAULT 'PENDING',
+    delivery_address TEXT,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delivery_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================
 -- PAYMENTS TABLE
 -- =========================================================
 CREATE TABLE payments (
-                          id BIGSERIAL PRIMARY KEY,
-                          payment_reference VARCHAR(50) UNIQUE,
-                          order_id BIGINT NOT NULL,
-                          amount DECIMAL(12,2) NOT NULL CHECK (amount >= 0),
-                          payment_method VARCHAR(50) NOT NULL,
-                          payment_status payment_status DEFAULT 'PENDING',
-                          transaction_id VARCHAR(100),
-                          gateway_response JSONB,
-                          payment_date TIMESTAMP WITH TIME ZONE,
-                          failure_reason TEXT,
-                          refund_amount DECIMAL(12,2) DEFAULT 0 CHECK (refund_amount >= 0),
-                          refund_date TIMESTAMP WITH TIME ZONE,
-                          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                          CONSTRAINT fk_payment_order
-                              FOREIGN KEY (order_id)
-                                  REFERENCES orders(id)
-                                  ON DELETE CASCADE,
-                          CONSTRAINT refund_valid
-                              CHECK (refund_amount <= amount)
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id),
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method VARCHAR(50),
+    payment_status payment_status DEFAULT 'PENDING',
+    transaction_id VARCHAR(100),
+    payment_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================================================
+-- NOTIFICATIONS TABLE
+-- =========================================================
+CREATE TABLE notifications (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================
 -- AUDIT LOG TABLE
 -- =========================================================
 CREATE TABLE audit_logs (
-                            id BIGSERIAL PRIMARY KEY,
-                            table_name VARCHAR(50) NOT NULL,
-                            record_id BIGINT NOT NULL,
-                            operation VARCHAR(10) NOT NULL CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE')),
-                            old_values JSONB,
-                            new_values JSONB,
-                            user_id BIGINT,
-                            ip_address INET,
-                            user_agent TEXT,
-                            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                            CONSTRAINT fk_audit_user
-                                FOREIGN KEY (user_id)
-                                    REFERENCES users(id)
-                                    ON DELETE SET NULL
+    id BIGSERIAL PRIMARY KEY,
+    table_name VARCHAR(50) NOT NULL,
+    record_id BIGINT NOT NULL,
+    operation VARCHAR(10) NOT NULL CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE')),
+    old_values JSONB,
+    new_values JSONB,
+    user_id BIGINT,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_audit_user
+        FOREIGN KEY (user_id)
+            REFERENCES users(id)
+            ON DELETE SET NULL
 );
 
 -- =========================================================

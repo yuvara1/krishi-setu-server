@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.agri.agritrade.dto.UserDTO;
 import org.agri.agritrade.entity.User;
 import org.agri.agritrade.entity.enums.Role;
 import org.agri.agritrade.repository.UserRepository;
+import org.agri.agritrade.service.UserServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService {
+public class UserService implements UserServicePort {
 
     private final UserRepository userRepository;
 
@@ -39,7 +40,7 @@ public class UserService {
         dto.setUpdatedAt(user.getUpdatedAt());
         return dto;
     }
-
+@Override
     public ResponseStructure<List<UserDTO>> getAllUsers() {
         try {
             List<UserDTO> users = userRepository.findAll().stream().map(this::toDTO).toList();
@@ -49,7 +50,7 @@ public class UserService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve users", null);
         }
     }
-
+    @Override
     public ResponseStructure<PagedResponse<UserDTO>> getAllUsersPaged(int page, int size) {
         try {
             Page<User> userPage = userRepository.findAll(
@@ -66,7 +67,7 @@ public class UserService {
         }
     }
 
-
+    @Override
     public ResponseStructure<UserDTO> getUserById(Long id) {
         try {
             return userRepository.findById(id)
@@ -77,7 +78,7 @@ public class UserService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve user", null);
         }
     }
-
+    @Override
     @Transactional
     public ResponseStructure<UserDTO> updateUser(Long id, UserDTO dto) {
         try {
@@ -123,7 +124,7 @@ public class UserService {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to update user", null);
         }
     }
-
+    @Override
     @Transactional
     public ResponseStructure<Void> deleteUser(Long id) {
         try {

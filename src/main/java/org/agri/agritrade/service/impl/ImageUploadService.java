@@ -1,9 +1,10 @@
-// File: server/agritrade/src/main/java/org/agri/agritrade/service/ImageUploadService.java
 
-package org.agri.agritrade.service;
+
+package org.agri.agritrade.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.service.ImageUploadServicePort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class ImageUploadService {
+public class ImageUploadService implements ImageUploadServicePort {
 
     private static final String IMAGEKIT_UPLOAD_URL = "https://upload.imagekit.io/api/v1/files/upload";
 
@@ -25,7 +26,7 @@ public class ImageUploadService {
     private String privateKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
-
+    @Override
     public ResponseStructure<Map<String, String>> uploadImage(MultipartFile file, String folder) {
         try {
             if (file.isEmpty()) {

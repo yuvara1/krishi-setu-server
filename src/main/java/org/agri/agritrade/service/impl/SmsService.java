@@ -1,6 +1,7 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.agri.agritrade.service.SmsServicePort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class SmsService {
+public class SmsService implements SmsServicePort {
 
     @Value("${textbee.api-key}")
     private String apiKey;
@@ -22,6 +23,7 @@ public class SmsService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    @Override
     @Async
     public void sendSms(String phoneNumber, String message) {
         if (phoneNumber == null || phoneNumber.isBlank()) {

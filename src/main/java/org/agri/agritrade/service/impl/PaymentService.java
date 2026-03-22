@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +9,7 @@ import org.agri.agritrade.entity.Payment;
 import org.agri.agritrade.entity.enums.PaymentStatus;
 import org.agri.agritrade.repository.OrderRepository;
 import org.agri.agritrade.repository.PaymentRepository;
+import org.agri.agritrade.service.PaymentServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentService {
+public class PaymentService implements PaymentServicePort {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
@@ -36,7 +37,7 @@ public class PaymentService {
         dto.setCreatedAt(payment.getCreatedAt());
         return dto;
     }
-
+    @Override
     @Transactional
     public ResponseStructure<PaymentDTO> createPayment(PaymentDTO dto) {
         Optional<Order> orderOpt = orderRepository.findById(dto.getOrderId());
@@ -53,13 +54,13 @@ public class PaymentService {
         Payment saved = paymentRepository.save(payment);
         return new ResponseStructure<>(HttpStatus.CREATED.value(), "Payment created", toDTO(saved));
     }
-
+    @Override
     public ResponseStructure<PaymentDTO> getByOrder(Long orderId) {
         return paymentRepository.findByOrder_Id(orderId)
                 .map(p -> new ResponseStructure<>(HttpStatus.OK.value(), "Payment found", toDTO(p)))
                 .orElse(new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Payment not found", null));
     }
-
+    @Override
     @Transactional
     public ResponseStructure<PaymentDTO> updatePaymentStatus(Long paymentId, PaymentStatus status, String transactionId) {
         Optional<Payment> payOpt = paymentRepository.findById(paymentId);

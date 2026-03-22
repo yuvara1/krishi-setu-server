@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +8,7 @@ import org.agri.agritrade.entity.Notification;
 import org.agri.agritrade.entity.User;
 import org.agri.agritrade.repository.NotificationRepository;
 import org.agri.agritrade.repository.UserRepository;
+import org.agri.agritrade.service.NotificationServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationService {
+public class NotificationService implements NotificationServicePort {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
+    @Override
     public void sendNotification(Long userId, String title, String message, String type) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return;
@@ -45,6 +47,7 @@ public class NotificationService {
         log.info("Notification sent to user {}: {}", userId, title);
     }
 
+    @Override
     public ResponseStructure<List<NotificationDTO>> getUserNotifications(Long userId) {
         List<NotificationDTO> notifications = notificationRepository
                 .findByUser_IdOrderByCreatedAtDesc(userId)
@@ -52,11 +55,13 @@ public class NotificationService {
         return new ResponseStructure<>(HttpStatus.OK.value(), "Notifications retrieved", notifications);
     }
 
+    @Override
     public ResponseStructure<Long> getUnreadCount(Long userId) {
         long count = notificationRepository.countByUser_IdAndReadFalse(userId);
         return new ResponseStructure<>(HttpStatus.OK.value(), "Unread count", count);
     }
 
+    @Override
     @Transactional
     public ResponseStructure<Void> markAsRead(Long notificationId) {
         notificationRepository.findById(notificationId).ifPresent(n -> {
@@ -66,6 +71,7 @@ public class NotificationService {
         return new ResponseStructure<>(HttpStatus.OK.value(), "Marked as read", null);
     }
 
+    @Override
     @Transactional
     public ResponseStructure<Void> markAllAsRead(Long userId) {
         List<Notification> unread = notificationRepository.findByUser_IdOrderByCreatedAtDesc(userId)

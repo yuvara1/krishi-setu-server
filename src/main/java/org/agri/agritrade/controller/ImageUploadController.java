@@ -4,7 +4,7 @@ package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.service.ImageUploadService;
+import org.agri.agritrade.service.impl.ImageUploadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

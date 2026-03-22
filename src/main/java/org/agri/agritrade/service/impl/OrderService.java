@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +10,11 @@ import org.agri.agritrade.entity.enums.CropStatus;
 import org.agri.agritrade.entity.enums.OrderStatus;
 import org.agri.agritrade.entity.enums.PaymentStatus;
 import org.agri.agritrade.repository.*;
+import org.agri.agritrade.service.OrderServicePort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OrderService {
+public class OrderService implements OrderServicePort {
 
     private final OrderRepository orderRepository;
     private final BidRepository bidRepository;
@@ -53,7 +52,7 @@ public class OrderService {
         dto.setUpdatedAt(order.getUpdatedAt());
         return dto;
     }
-
+    @Override
     @Transactional
     public ResponseStructure<OrderDTO> createOrderFromBid(Long bidId, String deliveryAddress) {
         if (deliveryAddress == null || deliveryAddress.trim().isEmpty()) {
@@ -109,28 +108,28 @@ public class OrderService {
        }
 
     }
-
+    @Override
     public ResponseStructure<OrderDTO> getById(Long id) {
         return orderRepository.findById(id)
                 .map(o -> new ResponseStructure<>(HttpStatus.OK.value(), "Order found", toDTO(o)))
                 .orElse(new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Order not found", null));
     }
-
+    @Override
     public ResponseStructure<List<OrderDTO>> getByFarmer(Long farmerId) {
         List<OrderDTO> orders = orderRepository.findByFarmer_Id(farmerId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
     }
-
+    @Override
     public ResponseStructure<List<OrderDTO>> getByRetailer(Long retailerId) {
         List<OrderDTO> orders = orderRepository.findByRetailer_Id(retailerId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
     }
-
+    @Override
     public ResponseStructure<List<OrderDTO>> getAll() {
         List<OrderDTO> orders = orderRepository.findAll().stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
     }
-
+    @Override
     public ResponseStructure<PagedResponse<OrderDTO>> getAllPaged(int page, int size) {
         Page<Order> orderPage = orderRepository.findAll(
                 org.springframework.data.domain.PageRequest.of(page, size,
@@ -141,7 +140,7 @@ public class OrderService {
                 orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
     }
-
+    @Override
     public ResponseStructure<PagedResponse<OrderDTO>> getByFarmerPaged(Long farmerId, int page, int size) {
         Page<Order> orderPage = orderRepository.findByFarmer_Id(farmerId,
                 org.springframework.data.domain.PageRequest.of(page, size,
@@ -163,7 +162,7 @@ public class OrderService {
                 orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
     }
-
+    @Override
     @Transactional
     public ResponseStructure<OrderDTO> updateStatus(Long id, OrderStatus status) {
         Optional<Order> orderOpt = orderRepository.findById(id);

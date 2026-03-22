@@ -1,4 +1,4 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
@@ -18,6 +18,7 @@ import org.agri.agritrade.repository.BidRepository;
 import org.agri.agritrade.repository.CropBatchRepository;
 import org.agri.agritrade.repository.OrderRepository;
 import org.agri.agritrade.repository.PaymentRepository;
+import org.agri.agritrade.service.RazorpayServicePort;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class RazorpayService {
+public class RazorpayService implements RazorpayServicePort {
 
     private final String keyId;
     private final String keySecret;
@@ -57,7 +58,7 @@ public class RazorpayService {
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
     }
-
+    @Override
     public ResponseStructure<RazorpayOrderResponse> createOrder(Long bidId) {
         Optional<Bid> bidOpt = bidRepository.findById(bidId);
         if (bidOpt.isEmpty()) {
@@ -108,7 +109,7 @@ public class RazorpayService {
                     "Payment order creation failed", null);
         }
     }
-
+    @Override
     @Transactional
     public ResponseStructure<String> verifyAndProcessPayment(PaymentVerificationRequest request) {
         // 1. Verify Razorpay signature

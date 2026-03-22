@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.dto.request.PaymentVerificationRequest;
 import org.agri.agritrade.dto.response.RazorpayOrderResponse;
-import org.agri.agritrade.service.RazorpayService;
+import org.agri.agritrade.service.impl.RazorpayService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

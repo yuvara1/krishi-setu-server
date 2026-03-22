@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.agri.agritrade.dto.PaymentDTO;
 import org.agri.agritrade.dto.ResponseStructure;
 import org.agri.agritrade.entity.enums.PaymentStatus;
-import org.agri.agritrade.service.PaymentService;
+import org.agri.agritrade.service.impl.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

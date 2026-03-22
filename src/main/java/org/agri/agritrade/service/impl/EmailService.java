@@ -1,7 +1,8 @@
-package org.agri.agritrade.service;
+package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.agri.agritrade.service.EmailServicePort;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EmailService {
+public class EmailService implements EmailServicePort {
 
     private final JavaMailSender mailSender;
-
+    @Override
     @Async
     public void sendEmail(String to, String subject, String body) {
         if (to == null || to.isBlank()) {
@@ -32,7 +33,7 @@ public class EmailService {
             log.error("Failed to send email to {}: {}", to, e.getMessage());
         }
     }
-
+    @Override
     @Async
     public void sendOtpEmail(String to, String otp) {
         String subject = "KrishiSetu - Password Reset OTP";
@@ -43,13 +44,13 @@ public class EmailService {
                 "Regards,\nKrishiSetu Team", otp);
         sendEmail(to, subject, body);
     }
-
+    @Override
     @Async
     public void sendOrderConfirmation(String to, String orderDetails) {
         String subject = "KrishiSetu - Order Confirmation";
         sendEmail(to, subject, orderDetails);
     }
-
+    @Override
     @Async
     public void sendBidNotification(String to, String bidDetails) {
         String subject = "KrishiSetu - Bid Update";
