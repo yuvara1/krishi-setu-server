@@ -8,7 +8,7 @@ import org.agri.agritrade.dto.UserDTO;
 import org.agri.agritrade.dto.request.LoginRequest;
 import org.agri.agritrade.dto.request.RegistrationRequest;
 import org.agri.agritrade.dto.response.JwtAuthenticationResponse;
-import org.agri.agritrade.service.impl.AuthService;
+import org.agri.agritrade.service.AuthServicePort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServicePort authService;
 
     @PostMapping("/register")
     public ResponseEntity<ResponseStructure<UserDTO>> registerUser(@Valid @RequestBody RegistrationRequest request) {
