@@ -2,10 +2,10 @@ package org.agri.agritrade.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.agri.agritrade.dto.CropBatchDTO;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.CropStatus;
+import org.agri.agritrade.dto.response.CropBatchDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.CropStatus;
 import org.agri.agritrade.service.impl.CropBatchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

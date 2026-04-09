@@ -2,13 +2,13 @@ package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.dto.UserDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.dto.response.UserDTO;
 import org.agri.agritrade.dto.request.LoginRequest;
 import org.agri.agritrade.dto.request.RegistrationRequest;
 import org.agri.agritrade.dto.response.JwtAuthenticationResponse;
 import org.agri.agritrade.entity.User;
-import org.agri.agritrade.entity.enums.Role;
+import org.agri.agritrade.util.enums.Role;
 import org.agri.agritrade.repository.UserRepository;
 import org.agri.agritrade.security.JwtTokenProvider;
 import org.agri.agritrade.service.AuthServicePort;

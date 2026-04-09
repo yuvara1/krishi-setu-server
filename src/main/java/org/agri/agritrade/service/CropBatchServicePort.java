@@ -1,9 +1,9 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.CropBatchDTO;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.CropStatus;
+import org.agri.agritrade.dto.response.CropBatchDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.CropStatus;
 
 import java.util.List;
 

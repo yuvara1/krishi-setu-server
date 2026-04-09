@@ -1,11 +1,11 @@
-package org.agri.agritrade.dto;
+package org.agri.agritrade.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.agri.agritrade.entity.enums.CropStatus;
+import org.agri.agritrade.util.enums.CropStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

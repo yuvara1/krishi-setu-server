@@ -1,11 +1,9 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.OrderDTO;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.OrderStatus;
-
-import java.util.List;
+import org.agri.agritrade.dto.response.OrderDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.OrderStatus;
 
 public interface OrderServicePort {
     ResponseStructure<OrderDTO> createOrderFromBid(Long bidId, String deliveryAddress);

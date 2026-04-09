@@ -1,8 +1,8 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.dto.UserDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.dto.response.UserDTO;
 
 import java.util.List;
 

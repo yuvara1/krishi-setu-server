@@ -3,7 +3,7 @@ package org.agri.agritrade.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
-import org.agri.agritrade.entity.enums.Role;
+import org.agri.agritrade.util.enums.Role;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 

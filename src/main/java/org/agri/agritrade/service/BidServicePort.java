@@ -1,9 +1,9 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.BidDTO;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.BidStatus;
+import org.agri.agritrade.dto.response.BidDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.BidStatus;
 
 import java.util.List;
 

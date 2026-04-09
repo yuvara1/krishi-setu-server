@@ -1,7 +1,7 @@
 package org.agri.agritrade.repository;
 
 import org.agri.agritrade.entity.CropBatch;
-import org.agri.agritrade.entity.enums.CropStatus;
+import org.agri.agritrade.util.enums.CropStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

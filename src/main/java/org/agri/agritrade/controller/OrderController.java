@@ -1,10 +1,10 @@
 package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.agri.agritrade.dto.OrderDTO;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.OrderStatus;
+import org.agri.agritrade.dto.response.OrderDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.OrderStatus;
 import org.agri.agritrade.service.impl.InvoiceService;
 import org.agri.agritrade.service.impl.OrderService;
 import org.springframework.http.HttpHeaders;

@@ -1,7 +1,7 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.dto.UserDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.dto.response.UserDTO;
 import org.agri.agritrade.dto.request.LoginRequest;
 import org.agri.agritrade.dto.request.RegistrationRequest;
 import org.agri.agritrade.dto.response.JwtAuthenticationResponse;

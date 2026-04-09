@@ -1,4 +1,4 @@
-package org.agri.agritrade.dto;
+package org.agri.agritrade.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

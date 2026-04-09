@@ -1,7 +1,7 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.NotificationDTO;
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.NotificationDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
 
 import java.util.List;
 

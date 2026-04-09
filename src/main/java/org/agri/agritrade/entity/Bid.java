@@ -2,7 +2,7 @@ package org.agri.agritrade.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.agri.agritrade.entity.enums.BidStatus;
+import org.agri.agritrade.util.enums.BidStatus;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.math.BigDecimal;

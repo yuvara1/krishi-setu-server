@@ -3,7 +3,7 @@
 package org.agri.agritrade.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.ResponseStructure;
 import org.agri.agritrade.service.ImageUploadServicePort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;

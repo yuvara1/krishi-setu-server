@@ -2,7 +2,7 @@ package org.agri.agritrade.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.agri.agritrade.entity.enums.CropStatus;
+import org.agri.agritrade.util.enums.CropStatus;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 

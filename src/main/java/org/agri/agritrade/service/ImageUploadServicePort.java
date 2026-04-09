@@ -1,6 +1,6 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.ResponseStructure;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;

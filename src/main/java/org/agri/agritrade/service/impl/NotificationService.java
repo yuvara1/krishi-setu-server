@@ -2,8 +2,8 @@ package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.agri.agritrade.dto.NotificationDTO;
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.NotificationDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
 import org.agri.agritrade.entity.Notification;
 import org.agri.agritrade.entity.User;
 import org.agri.agritrade.repository.NotificationRepository;

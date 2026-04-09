@@ -1,6 +1,6 @@
 package org.agri.agritrade.mapper;
 
-import org.agri.agritrade.dto.CropBatchDTO;
+import org.agri.agritrade.dto.response.CropBatchDTO;
 import org.agri.agritrade.entity.CropBatch;
 
 public class CropBatchMapper {

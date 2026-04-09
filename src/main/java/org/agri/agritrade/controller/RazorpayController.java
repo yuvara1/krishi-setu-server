@@ -2,7 +2,7 @@ package org.agri.agritrade.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.ResponseStructure;
 import org.agri.agritrade.dto.request.PaymentVerificationRequest;
 import org.agri.agritrade.dto.response.RazorpayOrderResponse;
 import org.agri.agritrade.service.impl.RazorpayService;

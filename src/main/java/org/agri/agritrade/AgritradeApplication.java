@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 public class AgritradeApplication {
 
     public static void main(String[] args) {

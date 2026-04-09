@@ -2,10 +2,10 @@ package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.dto.UserDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.dto.response.UserDTO;
 import org.agri.agritrade.entity.User;
-import org.agri.agritrade.entity.enums.Role;
+import org.agri.agritrade.util.enums.Role;
 import org.agri.agritrade.repository.UserRepository;
 import org.agri.agritrade.service.UserServicePort;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.agri.agritrade.dto.PagedResponse;
+import org.agri.agritrade.dto.response.PagedResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;

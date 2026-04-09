@@ -2,11 +2,11 @@ package org.agri.agritrade.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.agri.agritrade.dto.PaymentDTO;
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.PaymentDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
 import org.agri.agritrade.entity.Order;
 import org.agri.agritrade.entity.Payment;
-import org.agri.agritrade.entity.enums.PaymentStatus;
+import org.agri.agritrade.util.enums.PaymentStatus;
 import org.agri.agritrade.repository.OrderRepository;
 import org.agri.agritrade.repository.PaymentRepository;
 import org.agri.agritrade.service.PaymentServicePort;

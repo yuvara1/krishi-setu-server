@@ -1,8 +1,8 @@
-package org.agri.agritrade.dto;
+package org.agri.agritrade.dto.response;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.agri.agritrade.entity.enums.BidStatus;
+import org.agri.agritrade.util.enums.BidStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

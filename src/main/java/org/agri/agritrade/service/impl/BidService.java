@@ -1,16 +1,16 @@
 package org.agri.agritrade.service.impl;
 
-import org.agri.agritrade.dto.PagedResponse;
+import org.agri.agritrade.dto.response.PagedResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.agri.agritrade.dto.BidDTO;
-import org.agri.agritrade.dto.ResponseStructure;
+import org.agri.agritrade.dto.response.BidDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
 import org.agri.agritrade.entity.Bid;
 import org.agri.agritrade.entity.CropBatch;
 import org.agri.agritrade.entity.User;
-import org.agri.agritrade.entity.enums.BidStatus;
-import org.agri.agritrade.entity.enums.CropStatus;
+import org.agri.agritrade.util.enums.BidStatus;
+import org.agri.agritrade.util.enums.CropStatus;
 import org.agri.agritrade.repository.BidRepository;
 import org.agri.agritrade.repository.CropBatchRepository;
 import org.agri.agritrade.repository.OrderRepository;

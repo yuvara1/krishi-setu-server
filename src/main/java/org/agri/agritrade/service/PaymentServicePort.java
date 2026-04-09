@@ -1,8 +1,8 @@
 package org.agri.agritrade.service;
 
-import org.agri.agritrade.dto.PaymentDTO;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.PaymentStatus;
+import org.agri.agritrade.dto.response.PaymentDTO;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.PaymentStatus;
 
 public interface PaymentServicePort {
     ResponseStructure<PaymentDTO> createPayment(PaymentDTO dto);

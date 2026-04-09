@@ -1,9 +1,9 @@
 package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.dto.UserDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.dto.response.UserDTO;
 import org.agri.agritrade.service.impl.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

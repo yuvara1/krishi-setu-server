@@ -1,10 +1,10 @@
 package org.agri.agritrade.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.agri.agritrade.dto.BidDTO;
-import org.agri.agritrade.dto.PagedResponse;
-import org.agri.agritrade.dto.ResponseStructure;
-import org.agri.agritrade.entity.enums.BidStatus;
+import org.agri.agritrade.dto.response.BidDTO;
+import org.agri.agritrade.dto.response.PagedResponse;
+import org.agri.agritrade.dto.response.ResponseStructure;
+import org.agri.agritrade.util.enums.BidStatus;
 import org.agri.agritrade.service.impl.BidService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

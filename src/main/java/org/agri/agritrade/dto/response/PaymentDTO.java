@@ -1,7 +1,7 @@
-package org.agri.agritrade.dto;
+package org.agri.agritrade.dto.response;
 
 import lombok.Data;
-import org.agri.agritrade.entity.enums.PaymentStatus;
+import org.agri.agritrade.util.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

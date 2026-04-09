@@ -2,8 +2,8 @@ package org.agri.agritrade.repository;
 
 import org.agri.agritrade.entity.CropBatch;
 import org.agri.agritrade.entity.User;
-import org.agri.agritrade.entity.enums.CropStatus;
-import org.agri.agritrade.entity.enums.Role;
+import org.agri.agritrade.util.enums.CropStatus;
+import org.agri.agritrade.util.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
