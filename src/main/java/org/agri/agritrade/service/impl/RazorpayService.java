@@ -58,6 +58,7 @@ public class RazorpayService implements RazorpayServicePort {
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
     }
+
     @Override
     public ResponseStructure<RazorpayOrderResponse> createOrder(Long bidId) {
         Optional<Bid> bidOpt = bidRepository.findById(bidId);
@@ -109,6 +110,7 @@ public class RazorpayService implements RazorpayServicePort {
                     "Payment order creation failed", null);
         }
     }
+
     @Override
     @Transactional
     public ResponseStructure<String> verifyAndProcessPayment(PaymentVerificationRequest request) {

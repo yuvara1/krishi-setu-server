@@ -6,6 +6,8 @@ import org.agri.agritrade.util.enums.PaymentStatus;
 
 public interface PaymentServicePort {
     ResponseStructure<PaymentDTO> createPayment(PaymentDTO dto);
+
     ResponseStructure<PaymentDTO> getByOrder(Long orderId);
+
     ResponseStructure<PaymentDTO> updatePaymentStatus(Long paymentId, PaymentStatus status, String transactionId);
 }

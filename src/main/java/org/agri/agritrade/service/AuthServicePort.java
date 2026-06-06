@@ -10,13 +10,22 @@ import java.util.Map;
 
 public interface AuthServicePort {
     ResponseStructure<UserDTO> register(RegistrationRequest request);
+
     ResponseStructure<JwtAuthenticationResponse> login(LoginRequest loginRequest);
+
     ResponseStructure<JwtAuthenticationResponse> refreshToken(String refreshToken);
+
     ResponseStructure<Void> logout(String token);
+
     ResponseStructure<UserDTO> getCurrentUserProfile();
+
     ResponseStructure<Void> forgotPassword(String email, String method);
+
     ResponseStructure<Void> verifyOtp(String email, String otp);
+
     ResponseStructure<Void> resetPassword(String email, String otp, String newPassword);
+
     ResponseStructure<UserDTO> updateProfile(Map<String, String> updates);
+
     ResponseStructure<Void> changePassword(Map<String, String> request);
 }

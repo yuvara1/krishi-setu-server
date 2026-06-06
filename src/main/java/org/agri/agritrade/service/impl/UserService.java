@@ -40,7 +40,8 @@ public class UserService implements UserServicePort {
         dto.setUpdatedAt(user.getUpdatedAt());
         return dto;
     }
-@Override
+
+    @Override
     public ResponseStructure<List<UserDTO>> getAllUsers() {
         try {
             List<UserDTO> users = userRepository.findAll().stream().map(this::toDTO).toList();
@@ -50,6 +51,7 @@ public class UserService implements UserServicePort {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve users", null);
         }
     }
+
     @Override
     public ResponseStructure<PagedResponse<UserDTO>> getAllUsersPaged(int page, int size) {
         try {
@@ -78,6 +80,7 @@ public class UserService implements UserServicePort {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to retrieve user", null);
         }
     }
+
     @Override
     @Transactional
     public ResponseStructure<UserDTO> updateUser(Long id, UserDTO dto) {
@@ -124,6 +127,7 @@ public class UserService implements UserServicePort {
             return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to update user", null);
         }
     }
+
     @Override
     @Transactional
     public ResponseStructure<Void> deleteUser(Long id) {

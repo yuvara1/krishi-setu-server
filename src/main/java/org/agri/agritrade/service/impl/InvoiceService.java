@@ -18,6 +18,7 @@ public class InvoiceService implements InvoiceServicePort {
 
     private final OrderRepository orderRepository;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
+
     @Override
     public byte[] generateInvoice(Long orderId) {
         Order order = orderRepository.findById(orderId)

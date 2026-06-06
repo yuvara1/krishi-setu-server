@@ -53,6 +53,7 @@ public class OrderService implements OrderServicePort {
         dto.setUpdatedAt(order.getUpdatedAt());
         return dto;
     }
+
     @Override
     @Transactional
     public ResponseStructure<OrderDTO> createOrderFromBid(Long bidId, String deliveryAddress) {
@@ -65,71 +66,75 @@ public class OrderService implements OrderServicePort {
                     "Order already exists for this bid", null);
         }
 
-       try {
-           Optional<Bid> bidOpt = bidRepository.findById(bidId);
-           if (bidOpt.isEmpty())
-               return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Bid not found", null);
+        try {
+            Optional<Bid> bidOpt = bidRepository.findById(bidId);
+            if (bidOpt.isEmpty())
+                return new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Bid not found", null);
 
-           Bid bid = bidOpt.get();
-           Order order = new Order();
-           order.setBid(bid);
-           order.setCropBatch(bid.getCropBatch());
-           order.setFarmer(bid.getCropBatch().getFarmer());
-           order.setRetailer(bid.getRetailer());
-           order.setFinalAmount(bid.getBidAmount().multiply(bid.getBidQuantity()));
-           order.setQuantity(bid.getBidQuantity());
-           order.setOrderStatus(OrderStatus.PENDING);
-           order.setPaymentStatus(PaymentStatus.PENDING);
-           order.setDeliveryAddress(deliveryAddress);
-           order.setOrderDate(LocalDateTime.now());
-           order.setCreatedAt(LocalDateTime.now());
-           order.setUpdatedAt(LocalDateTime.now());
+            Bid bid = bidOpt.get();
+            Order order = new Order();
+            order.setBid(bid);
+            order.setCropBatch(bid.getCropBatch());
+            order.setFarmer(bid.getCropBatch().getFarmer());
+            order.setRetailer(bid.getRetailer());
+            order.setFinalAmount(bid.getBidAmount().multiply(bid.getBidQuantity()));
+            order.setQuantity(bid.getBidQuantity());
+            order.setOrderStatus(OrderStatus.PENDING);
+            order.setPaymentStatus(PaymentStatus.PENDING);
+            order.setDeliveryAddress(deliveryAddress);
+            order.setOrderDate(LocalDateTime.now());
+            order.setCreatedAt(LocalDateTime.now());
+            order.setUpdatedAt(LocalDateTime.now());
 
-           bid.getCropBatch().setStatus(CropStatus.SOLD);
-           cropBatchRepository.save(bid.getCropBatch());
+            bid.getCropBatch().setStatus(CropStatus.SOLD);
+            cropBatchRepository.save(bid.getCropBatch());
 
-           Order saved = orderRepository.save(order);
+            Order saved = orderRepository.save(order);
 
-           // Send notifications
-           String farmerMsg = String.format("New order created for your crop '%s'. Amount: ₹%s. Check your dashboard.",
-                   bid.getCropBatch().getCropName(), order.getFinalAmount());
-           String retailerMsg = String.format("Your order for '%s' has been created. Amount: ₹%s. Delivery to: %s",
-                   bid.getCropBatch().getCropName(), order.getFinalAmount(), deliveryAddress);
+            // Send notifications
+            String farmerMsg = String.format("New order created for your crop '%s'. Amount: ₹%s. Check your dashboard.",
+                    bid.getCropBatch().getCropName(), order.getFinalAmount());
+            String retailerMsg = String.format("Your order for '%s' has been created. Amount: ₹%s. Delivery to: %s",
+                    bid.getCropBatch().getCropName(), order.getFinalAmount(), deliveryAddress);
 
-           notificationService.sendNotification(order.getFarmer().getId(), "New Order", farmerMsg, "ORDER_CREATED");
-           notificationService.sendNotification(order.getRetailer().getId(), "Order Placed", retailerMsg, "ORDER_CREATED");
-           emailService.sendOrderConfirmation(order.getRetailer().getEmail(), retailerMsg);
-           emailService.sendOrderConfirmation(order.getFarmer().getEmail(), farmerMsg);
+            notificationService.sendNotification(order.getFarmer().getId(), "New Order", farmerMsg, "ORDER_CREATED");
+            notificationService.sendNotification(order.getRetailer().getId(), "Order Placed", retailerMsg, "ORDER_CREATED");
+            emailService.sendOrderConfirmation(order.getRetailer().getEmail(), retailerMsg);
+            emailService.sendOrderConfirmation(order.getFarmer().getEmail(), farmerMsg);
 
-           return new ResponseStructure<>(HttpStatus.CREATED.value(), "Order created", toDTO(saved));
-       }
-       catch (Exception e) {
-           log.error("Error creating order from bid {}: {}", bidId, e.getMessage(), e);
-           return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to create order", null);
-       }
+            return new ResponseStructure<>(HttpStatus.CREATED.value(), "Order created", toDTO(saved));
+        } catch (Exception e) {
+            log.error("Error creating order from bid {}: {}", bidId, e.getMessage(), e);
+            return new ResponseStructure<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to create order", null);
+        }
 
     }
+
     @Override
     public ResponseStructure<OrderDTO> getById(Long id) {
         return orderRepository.findById(id)
                 .map(o -> new ResponseStructure<>(HttpStatus.OK.value(), "Order found", toDTO(o)))
                 .orElse(new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Order not found", null));
     }
+
     @Override
     public ResponseStructure<List<OrderDTO>> getByFarmer(Long farmerId) {
         List<OrderDTO> orders = orderRepository.findByFarmer_Id(farmerId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
     }
+
     @Override
     public ResponseStructure<List<OrderDTO>> getByRetailer(Long retailerId) {
         List<OrderDTO> orders = orderRepository.findByRetailer_Id(retailerId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
     }
+
     @Override
     public ResponseStructure<List<OrderDTO>> getAll() {
         List<OrderDTO> orders = orderRepository.findAll().stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", orders);
     }
+
     @Override
     public ResponseStructure<PagedResponse<OrderDTO>> getAllPaged(int page, int size) {
         Page<Order> orderPage = orderRepository.findAll(
@@ -141,6 +146,7 @@ public class OrderService implements OrderServicePort {
                 orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
     }
+
     @Override
     public ResponseStructure<PagedResponse<OrderDTO>> getByFarmerPaged(Long farmerId, int page, int size) {
         Page<Order> orderPage = orderRepository.findByFarmer_Id(farmerId,
@@ -163,6 +169,7 @@ public class OrderService implements OrderServicePort {
                 orderPage.getTotalElements(), orderPage.getTotalPages(), orderPage.isLast());
         return new ResponseStructure<>(HttpStatus.OK.value(), "Orders retrieved", paged);
     }
+
     @Override
     @Transactional
     public ResponseStructure<OrderDTO> updateStatus(Long id, OrderStatus status) {

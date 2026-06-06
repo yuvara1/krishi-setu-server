@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class EmailService implements EmailServicePort {
 
     private final JavaMailSender mailSender;
+
     @Override
     @Async
     public void sendEmail(String to, String subject, String body) {
@@ -33,23 +34,26 @@ public class EmailService implements EmailServicePort {
             log.error("Failed to send email to {}: {}", to, e.getMessage());
         }
     }
+
     @Override
     @Async
     public void sendOtpEmail(String to, String otp) {
         String subject = "KrishiSetu - Password Reset OTP";
         String body = String.format(
                 "Dear User,\n\nYour OTP for password reset is: %s\n\n" +
-                "This OTP is valid for 10 minutes.\n\n" +
-                "If you did not request this, please ignore this email.\n\n" +
-                "Regards,\nKrishiSetu Team", otp);
+                        "This OTP is valid for 10 minutes.\n\n" +
+                        "If you did not request this, please ignore this email.\n\n" +
+                        "Regards,\nKrishiSetu Team", otp);
         sendEmail(to, subject, body);
     }
+
     @Override
     @Async
     public void sendOrderConfirmation(String to, String orderDetails) {
         String subject = "KrishiSetu - Order Confirmation";
         sendEmail(to, subject, orderDetails);
     }
+
     @Override
     @Async
     public void sendBidNotification(String to, String bidDetails) {

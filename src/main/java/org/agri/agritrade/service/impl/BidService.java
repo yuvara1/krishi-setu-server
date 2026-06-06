@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -119,11 +120,13 @@ public class BidService implements BidServicePort {
         List<BidDTO> bids = bidRepository.findByCropBatch_Id(cropBatchId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", bids);
     }
+
     @Override
     public ResponseStructure<List<BidDTO>> getBidsByRetailer(Long retailerId) {
         List<BidDTO> bids = bidRepository.findByRetailer_Id(retailerId).stream().map(this::toDTO).toList();
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bids retrieved", bids);
     }
+
     @Override
     @Transactional
     public ResponseStructure<BidDTO> updateBidStatus(Long bidId, BidStatus status) {
@@ -155,6 +158,7 @@ public class BidService implements BidServicePort {
 
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bid status updated", toDTO(updatedBid));
     }
+
     @Override
     @Transactional
     public ResponseStructure<Void> deleteBid(Long bidId) {
@@ -163,6 +167,7 @@ public class BidService implements BidServicePort {
         bidRepository.deleteById(bidId);
         return new ResponseStructure<>(HttpStatus.OK.value(), "Bid deleted", null);
     }
+
     @Override
     public ResponseStructure<PagedResponse<BidDTO>> getBidsByCropBatchPaged(Long cropBatchId, int page, int size) {
         Page<Bid> bidPage = bidRepository.findByCropBatch_Id(cropBatchId,
@@ -170,6 +175,7 @@ public class BidService implements BidServicePort {
                         Sort.by("createdAt").descending()));
         return getPagedResponseResponseStructure(bidPage);
     }
+
     @Override
     public ResponseStructure<PagedResponse<BidDTO>> getBidsByRetailerPaged(Long retailerId, int page, int size) {
         Page<Bid> bidPage = bidRepository.findByRetailer_Id(retailerId,

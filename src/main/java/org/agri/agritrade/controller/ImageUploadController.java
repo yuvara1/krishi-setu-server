@@ -1,4 +1,3 @@
-// File: server/agritrade/src/main/java/org/agri/agritrade/controller/ImageUploadController.java
 
 package org.agri.agritrade.controller;
 

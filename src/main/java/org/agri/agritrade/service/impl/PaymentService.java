@@ -37,6 +37,7 @@ public class PaymentService implements PaymentServicePort {
         dto.setCreatedAt(payment.getCreatedAt());
         return dto;
     }
+
     @Override
     @Transactional
     public ResponseStructure<PaymentDTO> createPayment(PaymentDTO dto) {
@@ -54,12 +55,14 @@ public class PaymentService implements PaymentServicePort {
         Payment saved = paymentRepository.save(payment);
         return new ResponseStructure<>(HttpStatus.CREATED.value(), "Payment created", toDTO(saved));
     }
+
     @Override
     public ResponseStructure<PaymentDTO> getByOrder(Long orderId) {
         return paymentRepository.findByOrder_Id(orderId)
                 .map(p -> new ResponseStructure<>(HttpStatus.OK.value(), "Payment found", toDTO(p)))
                 .orElse(new ResponseStructure<>(HttpStatus.NOT_FOUND.value(), "Payment not found", null));
     }
+
     @Override
     @Transactional
     public ResponseStructure<PaymentDTO> updatePaymentStatus(Long paymentId, PaymentStatus status, String transactionId) {

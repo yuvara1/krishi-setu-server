@@ -26,6 +26,7 @@ public class ImageUploadService implements ImageUploadServicePort {
     private String privateKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
     @Override
     public ResponseStructure<Map<String, String>> uploadImage(MultipartFile file, String folder) {
         try {
@@ -51,7 +52,7 @@ public class ImageUploadService implements ImageUploadServicePort {
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             String sanitizedName = file.getOriginalFilename()
-                .replaceAll("[^a-zA-Z0-9._-]", "_");
+                    .replaceAll("[^a-zA-Z0-9._-]", "_");
             body.add("file", file.getResource());
             body.add("fileName", sanitizedName);
             body.add("folder", folder);
